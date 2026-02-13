@@ -1,0 +1,8 @@
+LICENSE
+README.md
+setup.py
+src/endurance_analytics.egg-info/PKG-INFO
+src/endurance_analytics.egg-info/SOURCES.txt
+src/endurance_analytics.egg-info/dependency_links.txt
+src/endurance_analytics.egg-info/top_level.txt
+tests/test_load_csv.py
