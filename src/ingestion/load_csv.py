@@ -29,8 +29,12 @@ def load_session_csv(filepath):
 
     Returns
     -------
-    DataFrame
-        [some kind of data structure holding the CSV data]
+    df : DataFrame
+        Holds imported CSV data.
+
+    Notes
+    -----
+    FileNotFoundError raised if path does not exist.
     """
 
     # Convert the input filepath into a Path object
@@ -42,6 +46,9 @@ def load_session_csv(filepath):
 
     # Read CSV into pandas DataFrame
     df = pd.read_csv(path_obj)
+
+    # TODO: Check schema of CSV (swim, bike, run, etc.)
+    # TODO: Decide how to handle .fit files (higher resolution, ideal)
 
     # Return DataFrame
     return df
