@@ -42,7 +42,7 @@ def load_session_csv(filepath):
 
     # Check whether the file exists
     if not path_obj.exists():
-        raise FileNotFoundError("File not found: {path_obj}")
+        raise FileNotFoundError(f"File not found: {path_obj}")
 
     # Read CSV into pandas DataFrame
     df = pd.read_csv(path_obj)
