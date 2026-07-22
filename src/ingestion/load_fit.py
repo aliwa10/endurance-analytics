@@ -85,7 +85,7 @@ def load_session_fit(filepath):
         "session": session_df,
         "laps": lap_df,
         "records": record_df,
-        "length": length_df
+        "lengths": length_df
     }
 
     # Validate the schema of the loaded data

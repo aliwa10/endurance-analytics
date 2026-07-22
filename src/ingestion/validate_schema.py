@@ -21,7 +21,7 @@ REQUIRED_COLUMNS = {
                     "enhanced_altitude", "power"],
     },
     "swimming": {
-        "length": ["timestamp", "total_elapsed_time", "heart_rate"],
+        "lengths": ["timestamp", "total_elapsed_time", "heart_rate"],
         "session": ["pool_length"]
     }
 }
