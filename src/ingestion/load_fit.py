@@ -15,7 +15,7 @@ Created: 2026-02-27
 import pandas as pd
 from pathlib import Path
 from fitparse import FitFile
-from validate_schema import check_schema
+from ingestion.validate_schema import check_schema
 
 # -------------------------
 # Public ingestion function
@@ -52,8 +52,7 @@ def load_session_fit(filepath):
     # Parse the FIT file
     fitfile = FitFile(str(path_obj))
 
-    # Create empty lists for each message type
-    # you need: sessions, laps, records, lengths
+    # Empty lists for each message type
     sessions = []
     laps = []
     records = []
@@ -61,7 +60,7 @@ def load_session_fit(filepath):
 
     # Loop through ALL messages in the fitfile
     # For each message, check its name
-    # If it matches one of your four types, extract fields into a dict and
+    # If it matches one of the four types, extract fields into a dict and
     # append to the right list
     for message in fitfile.get_messages():
         if message.name == "session":
@@ -80,7 +79,6 @@ def load_session_fit(filepath):
     length_df = pd.DataFrame(lengths)
 
     # Return a dictionary of DataFrames
-    # keys should be: "session", "laps", "records", "lengths"
     data = {
         "session": session_df,
         "laps": lap_df,

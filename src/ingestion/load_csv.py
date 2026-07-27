@@ -25,7 +25,7 @@ def load_session_csv(filepath):
     Parameters
     ----------
     filepath : str or Path
-        Povides the location of the CSV file.
+        Provides the location of the CSV file.
 
     Returns
     -------
@@ -47,8 +47,7 @@ def load_session_csv(filepath):
     # Read CSV into pandas DataFrame
     df = pd.read_csv(path_obj)
 
-    # TODO: Check schema of CSV (swim, bike, run, etc.)
-    # TODO: Decide how to handle .fit files (higher resolution, ideal)
+    # TODO (maybe later): validate schema of the CSV data
 
     # Return DataFrame
     return df
