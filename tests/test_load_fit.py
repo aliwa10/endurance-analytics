@@ -39,14 +39,9 @@ def test_load_missing_file():
         load_session_fit("nonexistent.fit")
 
 def test_schema_validation_failure():
-    # OPEN DESIGN QUESTION (see chat): no broken FIT fixture exists, and
-    # hand-authoring FIT bytes isn't practical. Two options:
-    #   (a) build a fake `data` dict by hand (e.g. a "running" session with
-    #       an incomplete "records" DataFrame missing a required column)
-    #       and call check_schema(data) directly -- fastest, no fixture
-    #       needed, but bypasses load_session_fit/fitparse entirely
-    #   (b) add a real-but-incomplete FIT fixture file and go through
-    #       load_session_fit() end-to-end -- more realistic, but requires
-    #       producing/sourcing a broken FIT file
-    # Once decided, assert pytest.raises(ValueError) is triggered.
-    pass
+    fake_data = {
+        "session": pd.DataFrame({"sport": ["running"]}),
+        "records": pd.DataFrame({"timestamp": [1], "distance": [1]})
+    }
+    with pytest.raises(ValueError):
+        check_schema(fake_data)
