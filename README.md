@@ -10,10 +10,11 @@ fatigue, aerobic efficiency, etc.)
 black-box metrics.
 
 ## Current Scope
-- Data ingestion: load CSVs exported from Garmin
-- Metrics computation: pace/HR, watts/HR, session summaries
-- Analysis: session trends, fatigue detection
-- Visualization: plots of metrics over time
+- Data ingestion: load and validate CSV and FIT files exported from Garmin
+  (FIT is ideal/preferred format; CSV is secondary)
+- Metrics computation: pace/HR, watts/HR, session summaries (not yet started)
+- Analysis: session trends, fatigue detection (not yet started)
+- Visualization: plots of metrics over time (not yet started)
 
 ## Setup
 
@@ -25,7 +26,8 @@ cd endurance-analytics
 
 ## Folder Structure
 
-data/raw/          # CSV session files (ignored by git)
+data/raw/          # Personal training data (gitignored — CSV/FIT exports)
+data/raw/test/     # Test fixtures (tracked — CSV/FIT sample files for pytest)
 src/ingestion/     # Scripts to load data
 src/metrics/       # Scripts to compute metrics
 src/analysis/      # Scripts to analyze metrics
@@ -41,6 +43,7 @@ tests/             # Unit tests
 
 Example:
 ```bash
+python src/ingestion/load_fit.py data/raw/session1.fit
 python src/ingestion/load_csv.py data/raw/session1.csv
 ```
 
