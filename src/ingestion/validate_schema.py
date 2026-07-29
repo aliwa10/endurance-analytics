@@ -15,14 +15,18 @@ REQUIRED_COLUMNS = {
     "running": {
         "records": ["timestamp", "distance", "heart_rate", "cadence",
                     "enhanced_altitude"],
+        "session": ["total_calories"],
     },
     "cycling": {
         "records": ["timestamp", "distance", "heart_rate", "cadence",
                     "enhanced_altitude", "power"],
+        "session": ["total_calories"],
+
     },
     "swimming": {
-        "lengths": ["timestamp", "total_elapsed_time", "heart_rate"],
-        "session": ["pool_length"]
+        "records": ["timestamp", "heart_rate"],
+        "lengths": ["timestamp", "total_elapsed_time"],
+        "session": ["pool_length", "total_calories"]
     }
 }
 
