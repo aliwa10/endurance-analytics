@@ -19,7 +19,7 @@ REQUIRED_COLUMNS = {
     },
     "cycling": {
         "records": ["timestamp", "distance", "heart_rate", "cadence",
-                    "enhanced_altitude", "power"],
+                    "enhanced_altitude"],
         "session": ["total_calories"],
 
     },
