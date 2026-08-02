@@ -72,6 +72,7 @@ def test_load_valid_swimming_fit():
     assert all(col in test_dict["session"].columns
         for col in REQUIRED_COLUMNS["swimming"]["session"])
 
+    assert len(test_dict["records"]) > 0
     assert len(test_dict["lengths"]) > 0
 
 
