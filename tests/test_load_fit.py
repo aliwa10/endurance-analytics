@@ -91,3 +91,13 @@ def test_schema_validation_failure():
     }
     with pytest.raises(ValueError):
         check_schema(fake_data)
+
+
+def test_cycling_power_present():
+    test_dict = load_session_fit(CYCLING_POWER_FIT_PATH)
+    assert "power" in test_dict["records"].columns
+
+
+def test_cycling_power_absent():
+    test_dict = load_session_fit(CYCLING_NOPOWER_FIT_PATH)
+    assert "power" not in test_dict["records"].columns
