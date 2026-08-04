@@ -18,8 +18,7 @@ REQUIRED_COLUMNS = {
         "session": ["total_calories"],
     },
     "cycling": {
-        "records": ["timestamp", "distance", "heart_rate", "cadence",
-                    "enhanced_altitude"],
+        "records": ["timestamp", "distance", "heart_rate", "enhanced_altitude"],
         "session": ["total_calories"],
 
     },

@@ -17,7 +17,8 @@ from ingestion.validate_schema import check_schema, REQUIRED_COLUMNS
 # -------------------------
 
 RUNNING_FIT_PATH = "data/raw/test/test_run.fit"
-CYCLING_FIT_PATH = "data/raw/test/test_bike.fit"
+CYCLING_POWER_FIT_PATH = "data/raw/test/test_bike_power.fit"
+CYCLING_NOPOWER_FIT_PATH = "data/raw/test/test_bike_nopower.fit"
 SWIMMING_FIT_PATH = "data/raw/test/test_pool_swim.fit"
 
 # -------------------------
@@ -40,8 +41,10 @@ def test_load_valid_running_fit():
     assert len(test_dict["records"]) > 0
 
 
-def test_load_valid_cycling_fit():
-    test_dict = load_session_fit(CYCLING_FIT_PATH)
+@pytest.mark.parametrize("fit_path", [CYCLING_POWER_FIT_PATH,
+                         CYCLING_NOPOWER_FIT_PATH])
+def test_load_valid_cycling_fit(fit_path):
+    test_dict = load_session_fit(fit_path)
 
     assert isinstance(test_dict, dict)
     assert set(test_dict.keys()) == {"session", "laps", "records", "lengths"}
