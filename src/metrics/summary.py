@@ -46,11 +46,48 @@ def build_session_summary(data):
 
     sport = data["session"]["sport"].values[0]
     if sport == "running":
-        return build_running_summary(data["session"])
+        summary = build_running_summary(data["session"])
     elif sport == "cycling":
-        return build_cycling_summary(data["session"])
+        summary = build_cycling_summary(data["session"])
     elif sport == "swimming":
-        return build_swimming_summary(data["session"])
+        summary = build_swimming_summary(data["session"])
+    else:
+        raise ValueError(f"Unrecognized sport: {sport}")
+
+    summary["sport"] = sport
+
+    return format_summary(summary)
+
+
+def format_summary(summary):
+    """
+    Replaces missing (None) values in a session summary with a
+    human-readable placeholder.
+
+    Parameters
+    ----------
+    summary : dict
+        Session summary dict, as returned by one of the sport-specific
+        builders (build_running_summary, build_cycling_summary, or
+        build_swimming_summary), plus the injected "sport" key.
+
+    Returns
+    -------
+    dict
+        A new dict with the same keys as `summary`. Any value that was
+        None is replaced with "Not Recorded"; all other values are
+        copied over unchanged. The original `summary` dict is not
+        modified.
+    """
+
+    new_summary = {}
+    for key, value in summary.items(): 
+        if value is None:
+            new_summary[key] = "Not Recorded"
+        else:
+            new_summary[key] = value
+    
+    return new_summary
 
 
 def build_running_summary(session_df):
