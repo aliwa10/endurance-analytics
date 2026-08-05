@@ -1,0 +1,174 @@
+"""
+summary.py
+
+Builds per-session summary dicts (running, cycling, swimming) from the
+DataFrames returned by load_session_fit().
+
+Author: Aidan Liwanag
+Created: 2026-08-04
+"""
+
+# -------------------------
+# Imports
+# -------------------------
+
+from metrics.pace import running_pace, cycling_speed, swim_pace
+from metrics.convert import meters_to_miles, meters_to_yards, mps_to_mph
+
+# -------------------------
+# Public summary functions
+# -------------------------
+
+def build_session_summary(data):
+    """
+    Top-level orchestrator. Detects the sport for a loaded session and
+    dispatches to the matching sport-specific summary builder.
+
+    Parameters
+    ----------
+    data : dict
+        The dict returned by load_session_fit(), with keys "session",
+        "laps", "records", "lengths", each a pandas DataFrame.
+
+    Returns
+    -------
+    dict
+        Session summary, as returned by the dispatched sport-specific
+        builder (build_running_summary, build_cycling_summary, or
+        build_swimming_summary).
+
+    Notes
+    -----
+    Sport is detected from data["session"]["sport"]. The relevant
+    DataFrames are extracted from `data` and passed to the appropriate
+    builder based on that sport.
+    """
+
+    sport = data["session"]["sport"].values[0]
+    if sport == "running":
+        return build_running_summary(data["session"])
+    elif sport == "cycling":
+        return build_cycling_summary(data["session"])
+    elif sport == "swimming":
+        return build_swimming_summary(data["session"])
+
+
+def build_running_summary(session_df):
+    """
+    Builds a summary dict for a running session.
+
+    Parameters
+    ----------
+    session_df : pandas.DataFrame
+        Session-message data for the session.
+
+    Returns
+    -------
+    dict
+        Running session summary.
+
+    Notes
+    -----
+    Fields extracted directly from Garmin's own data keep Garmin's field
+    name (e.g. total_calories). Fields computed here (e.g. avg_pace, via
+    running_pace() in pace.py) get names chosen for this project.
+    """
+
+    time = session_df["total_elapsed_time"].values[0] / 60
+    distance = meters_to_miles(session_df["total_distance"].values[0])
+    avg_pace = running_pace(session_df["total_distance"].values[0],
+                            session_df["total_elapsed_time"].values[0])
+    avg_heart_rate = session_df["avg_heart_rate"].values[0]
+    total_calories = session_df["total_calories"].values[0]
+
+    running_summary = {
+        "time": time,
+        "distance": distance,
+        "avg_pace": avg_pace,
+        "avg_heart_rate": avg_heart_rate,
+        "total_calories": total_calories
+    }
+
+    return running_summary
+
+
+def build_cycling_summary(session_df):
+    """
+    Builds a summary dict for a cycling session.
+
+    Parameters
+    ----------
+    session_df : pandas.DataFrame
+        Session-message data for the session.
+
+    Returns
+    -------
+    dict
+        Cycling session summary.
+
+    Notes
+    -----
+    Fields extracted directly from Garmin's own data keep Garmin's field
+    name (e.g. avg_power, total_calories). Fields computed here (e.g.
+    avg_speed, via cycling_speed() in pace.py) get names chosen for this
+    project. avg_power may be entirely absent from session_df (no power
+    meter on the ride) and must be handled accordingly.
+    """
+
+    time = session_df["total_elapsed_time"].values[0] / 60
+    distance = meters_to_miles(session_df["total_distance"].values[0])
+    avg_heart_rate = session_df["avg_heart_rate"].values[0]
+    total_calories = session_df["total_calories"].values[0]
+    avg_speed = cycling_speed(session_df["total_distance"].values[0],
+                              session_df["total_elapsed_time"].values[0])
+    avg_power = session_df["avg_power"].values[0]
+
+    cycling_summary = {
+        "time": time,
+        "distance": distance,
+        "avg_speed": avg_speed,
+        "avg_power": avg_power,
+        "avg_heart_rate": avg_heart_rate,
+        "total_calories": total_calories
+    }
+
+    return cycling_summary
+
+
+def build_swimming_summary(session_df):
+    """
+    Builds a summary dict for a swimming session.
+
+    Parameters
+    ----------
+    session_df : pandas.DataFrame
+        Session-message data for the session.
+
+    Returns
+    -------
+    dict
+        Swimming session summary.
+
+    Notes
+    -----
+    Fields extracted directly from Garmin's own data keep Garmin's field
+    name (e.g. total_calories). Fields computed here (e.g. avg_pace, via
+    swim_pace() in pace.py) get names chosen for this project.
+    """
+
+    time = session_df["total_elapsed_time"].values[0] / 60
+    avg_heart_rate = session_df["avg_heart_rate"].values[0]
+    total_calories = session_df["total_calories"].values[0]
+    total_distance = meters_to_yards(session_df["total_distance"].values[0])
+    avg_pace = swim_pace(session_df["total_distance"].values[0],
+                         session_df["total_elapsed_time"].values[0])
+
+    swimming_summary = {
+        "time": time,
+        "total_distance": total_distance,
+        "avg_pace": avg_pace,
+        "avg_heart_rate": avg_heart_rate,
+        "total_calories": total_calories
+    }
+
+    return swimming_summary
