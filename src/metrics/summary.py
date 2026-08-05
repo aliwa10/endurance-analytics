@@ -50,7 +50,7 @@ def build_session_summary(data):
     elif sport == "cycling":
         summary = build_cycling_summary(data["session"])
     elif sport == "swimming":
-        summary = build_swimming_summary(data["session"])
+        summary = build_swimming_summary(data["session"], data["lengths"])
     else:
         raise ValueError(f"Unrecognized sport: {sport}")
 
@@ -176,7 +176,7 @@ def build_cycling_summary(session_df):
     return cycling_summary
 
 
-def build_swimming_summary(session_df):
+def build_swimming_summary(session_df, lengths_df):
     """
     Builds a summary dict for a swimming session.
 
@@ -184,6 +184,8 @@ def build_swimming_summary(session_df):
     ----------
     session_df : pandas.DataFrame
         Session-message data for the session.
+    lengths_df : pandas.DataFrame
+        Per-length data for the session.
 
     Returns
     -------
@@ -197,13 +199,15 @@ def build_swimming_summary(session_df):
     swim_pace() in pace.py) get names chosen for this project.
     """
 
+    active_swim_time = calc_active_swim_time(lengths_df)
+
     start_time = session_df["start_time"].values[0]
     elapsed_time = session_df["total_elapsed_time"].values[0] / 60
     avg_heart_rate = session_df["avg_heart_rate"].values[0]
     total_calories = session_df["total_calories"].values[0]
     total_distance = meters_to_yards(session_df["total_distance"].values[0])
     avg_pace = swim_pace(session_df["total_distance"].values[0],
-                         session_df["total_elapsed_time"].values[0])
+                         active_swim_time)
 
     swimming_summary = {
         "start_time": start_time,
@@ -215,3 +219,11 @@ def build_swimming_summary(session_df):
     }
 
     return swimming_summary
+
+
+def calc_active_swim_time(lengths_df):
+    filtered_df = lengths_df[lengths_df["length_type"] == "active"]
+    total = filtered_df["total_elapsed_time"].sum()
+
+    return total
+    
