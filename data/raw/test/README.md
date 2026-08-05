@@ -13,4 +13,4 @@ training data in data/raw/ generally).
 - Cycling, 7/29/26, workout, no power data
 
 ## test_pool_swim.fit
-- Pool swim, 5/19/26, workout
+- Pool swim, 2/19/26, workout
