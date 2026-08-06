@@ -112,16 +112,16 @@ def build_running_summary(session_df):
     """
 
     start_time = session_df["start_time"].values[0]
-    elapsed_time = session_df["total_elapsed_time"].values[0] / 60
+    timer_time = session_df["total_timer_time"].values[0] / 60
     distance = meters_to_miles(session_df["total_distance"].values[0])
     avg_pace = running_pace(session_df["total_distance"].values[0],
-                            session_df["total_elapsed_time"].values[0])
+                            session_df["total_timer_time"].values[0])
     avg_heart_rate = session_df["avg_heart_rate"].values[0]
     total_calories = session_df["total_calories"].values[0]
 
     running_summary = {
         "start_time": start_time,
-        "elapsed_time": elapsed_time,
+        "timer_time": timer_time,
         "distance": distance,
         "avg_pace": avg_pace,
         "avg_heart_rate": avg_heart_rate,
@@ -155,17 +155,17 @@ def build_cycling_summary(session_df):
     """
 
     start_time = session_df["start_time"].values[0]
-    elapsed_time = session_df["total_elapsed_time"].values[0] / 60
+    timer_time = session_df["total_timer_time"].values[0] / 60
     distance = meters_to_miles(session_df["total_distance"].values[0])
     avg_heart_rate = session_df["avg_heart_rate"].values[0]
     total_calories = session_df["total_calories"].values[0]
     avg_speed = cycling_speed(session_df["total_distance"].values[0],
-                              session_df["total_elapsed_time"].values[0])
+                              session_df["total_timer_time"].values[0])
     avg_power = session_df["avg_power"].values[0]
 
     cycling_summary = {
         "start_time": start_time,
-        "elapsed_time": elapsed_time,
+        "timer_time": timer_time,
         "distance": distance,
         "avg_speed": avg_speed,
         "avg_power": avg_power,
@@ -202,7 +202,7 @@ def build_swimming_summary(session_df, lengths_df):
     active_swim_time = calc_active_swim_time(lengths_df)
 
     start_time = session_df["start_time"].values[0]
-    elapsed_time = session_df["total_elapsed_time"].values[0] / 60
+    timer_time = session_df["total_timer_time"].values[0] / 60
     avg_heart_rate = session_df["avg_heart_rate"].values[0]
     total_calories = session_df["total_calories"].values[0]
     total_distance = meters_to_yards(session_df["total_distance"].values[0])
@@ -211,7 +211,7 @@ def build_swimming_summary(session_df, lengths_df):
 
     swimming_summary = {
         "start_time": start_time,
-        "elapsed_time": elapsed_time,
+        "timer_time": timer_time,
         "total_distance": total_distance,
         "avg_pace": avg_pace,
         "avg_heart_rate": avg_heart_rate,
