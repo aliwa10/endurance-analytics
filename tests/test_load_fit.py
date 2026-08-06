@@ -20,6 +20,7 @@ RUNNING_FIT_PATH = "data/raw/test/test_run.fit"
 CYCLING_POWER_FIT_PATH = "data/raw/test/test_bike_power.fit"
 CYCLING_NOPOWER_FIT_PATH = "data/raw/test/test_bike_nopower.fit"
 SWIMMING_FIT_PATH = "data/raw/test/test_pool_swim.fit"
+HIKING_FIT_PATH = "data/raw/test/test_hike.fit"
 
 # -------------------------
 # Test cases
@@ -91,6 +92,11 @@ def test_schema_validation_failure():
     }
     with pytest.raises(ValueError):
         check_schema(fake_data)
+
+
+def test_unknown_sport_fit():
+    with pytest.raises(ValueError, match="hiking"):
+        load_session_fit(HIKING_FIT_PATH)
 
 
 def test_cycling_power_present():

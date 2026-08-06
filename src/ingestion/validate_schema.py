@@ -51,6 +51,8 @@ def check_schema(data):
 
     # Detect sport type
     sport = data["session"]["sport"].values[0]
+    if sport not in REQUIRED_COLUMNS:
+        raise ValueError(f"{sport} is not currently supported.")
 
     for message_type, required_cols in REQUIRED_COLUMNS[sport].items():
         df = data[message_type]

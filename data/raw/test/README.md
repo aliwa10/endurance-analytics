@@ -14,3 +14,6 @@ training data in data/raw/ generally).
 
 ## test_pool_swim.fit
 - Pool swim, 2/19/26, workout
+
+## test_hike.fit
+- Hike, 8/1/26
