@@ -13,7 +13,6 @@ Created: 2026-08-04
 # -------------------------
 
 import pandas as pd
-
 from metrics.pace import (
     running_pace,
     cycling_speed,
@@ -98,14 +97,22 @@ def format_summary(summary):
             new_summary[key] = "Not Recorded"
         elif key == "start_time":
             new_summary[key] = pd.Timestamp(value).strftime("%Y-%m-%d %H:%M")
-        elif key == "total_distance":
-            new_summary[key] = round(value, 2)
+        elif key == "total_distance" and summary["sport"] != "swimming":
+            new_summary[key] = f"{round(value, 2)} mi"
+        elif key == "total_distance" and summary["sport"] == "swimming":
+            new_summary[key] = f"{round(value)} yd"
         elif key == "timer_time":
             new_summary[key] = seconds_to_hhmmss(value)
-        elif key == "avg_pace":
-            new_summary[key] = decimal_minutes_to_mmss(value)
+        elif key == "avg_pace" and summary["sport"] != "swimming":
+            new_summary[key] = f"{decimal_minutes_to_mmss(value)} min/mi"
+        elif key == "avg_pace" and summary["sport"] == "swimming":
+            new_summary[key] = f"{decimal_minutes_to_mmss(value)} min/100yd"
         elif key == "avg_speed":
-            new_summary[key] = f"{value} mph"
+            new_summary[key] = f"{round(value, 2)} mph"
+        elif key == "avg_heart_rate":
+            new_summary[key] = f"{value} bpm"
+        elif key == "avg_power" and value != None:
+            new_summary[key] = f"{value} W"
         else:
             new_summary[key] = value
     
@@ -248,4 +255,3 @@ def calc_active_swim_time(lengths_df):
     total = filtered_df["total_elapsed_time"].sum()
 
     return total
-    
