@@ -12,8 +12,20 @@ Created: 2026-08-04
 # Imports
 # -------------------------
 
-from metrics.pace import running_pace, cycling_speed, swim_pace
-from metrics.convert import meters_to_miles, meters_to_yards, mps_to_mph
+import pandas as pd
+
+from metrics.pace import (
+    running_pace,
+    cycling_speed,
+    swim_pace
+)
+from metrics.convert import (
+    meters_to_miles,
+    meters_to_yards,
+    mps_to_mph,
+    decimal_minutes_to_mmss,
+    seconds_to_hhmmss
+)
 
 # -------------------------
 # Public summary functions
@@ -56,7 +68,7 @@ def build_session_summary(data):
 
     summary["sport"] = sport
 
-    return format_summary(summary)
+    return summary
 
 
 def format_summary(summary):
@@ -75,15 +87,25 @@ def format_summary(summary):
     -------
     dict
         A new dict with the same keys as `summary`. Any value that was
-        None is replaced with "Not Recorded"; all other values are
-        copied over unchanged. The original `summary` dict is not
-        modified.
+        None is replaced with "Not Recorded"; timer_time, avg_pace,
+        avg_speed, and start_time are converted to more human-readable values;
+        decimals are rounded; The original `summary` dict is not modified.
     """
 
     new_summary = {}
     for key, value in summary.items(): 
         if value is None:
             new_summary[key] = "Not Recorded"
+        elif key == "start_time":
+            new_summary[key] = pd.Timestamp(value).strftime("%Y-%m-%d %H:%M")
+        elif key == "total_distance":
+            new_summary[key] = round(value, 2)
+        elif key == "timer_time":
+            new_summary[key] = seconds_to_hhmmss(value)
+        elif key == "avg_pace":
+            new_summary[key] = decimal_minutes_to_mmss(value)
+        elif key == "avg_speed":
+            new_summary[key] = f"{value} mph"
         else:
             new_summary[key] = value
     
@@ -122,7 +144,7 @@ def build_running_summary(session_df):
     running_summary = {
         "start_time": start_time,
         "timer_time": timer_time,
-        "distance": distance,
+        "total_distance": distance,
         "avg_pace": avg_pace,
         "avg_heart_rate": avg_heart_rate,
         "total_calories": total_calories
@@ -166,7 +188,7 @@ def build_cycling_summary(session_df):
     cycling_summary = {
         "start_time": start_time,
         "timer_time": timer_time,
-        "distance": distance,
+        "total_distance": distance,
         "avg_speed": avg_speed,
         "avg_power": avg_power,
         "avg_heart_rate": avg_heart_rate,
