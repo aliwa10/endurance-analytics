@@ -20,6 +20,14 @@ data = load_session_fit(filepath)
 summary = build_session_summary(data)
 summary = format_summary(summary)
 
+# Specify printing order
+print_order = ["start_time", "sport", "total_distance", "timer_time",
+               "avg_pace", "avg_speed", "avg_power", "avg_heart_rate",
+               "total_calories"]
+
 # Print each key and value in the summary
-for key, value in summary.items():
-    print(f"{key}: {value}")
+print()
+for key in print_order:
+    if key in summary:
+        print(f"{key:<15}: {summary[key]}")
+print()
