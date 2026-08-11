@@ -70,10 +70,112 @@ def build_session_summary(data):
     return summary
 
 
+def format_start_time(value, sport):
+    """
+    Extracts a human-readable start time.
+
+    Parameters
+    ----------
+    value : numpy.datetime64
+        The start time of an activity, to be made more human-readable.
+    sport : str
+        [Unused] Kept so every FORMAT_RULES entry shares the same
+        (value, sport) signature.
+
+    Returns
+    -------
+    string
+        The start time and date, formatted as "YYYY-MM-DD HH:MM"
+    """
+    return pd.Timestamp(value).strftime("%Y-%m-%d %H:%M")
+
+
+def format_timer_time(value, sport):
+    """
+    Formats timer_time for display.
+
+    Parameters
+    ----------
+    value : float
+        timer_time in raw seconds, as returned by the sport-specific
+        summary builders.
+    sport : str
+        [Unused] Kept so every FORMAT_RULES entry shares the same
+        (value, sport) signature.
+
+    Returns
+    -------
+    string
+        timer_time formatted as hh:mm:ss.
+    """
+    return f"{seconds_to_hhmmss(value)}"
+
+
+def format_distance(value, sport):
+    """
+    Formats total_distance for display, in sport-appropriate units.
+
+    Parameters
+    ----------
+    value : float
+        total_distance already converted to miles (running/cycling) or
+        yards (swimming) by the sport-specific summary builder.
+    sport : str
+        Sport of the session. Swimming distances are labeled "yd";
+        all other sports are labeled "mi".
+
+    Returns
+    -------
+    string
+        Rounded distance with its unit suffix.
+    """
+    if sport == "swimming":
+        return f"{round(value)} yd"
+    else:
+        return f"{round(value, 2)} mi"
+
+
+def format_pace(value, sport):
+    """
+    Formats avg_pace for display, in sport-appropriate units.
+
+    Parameters
+    ----------
+    value : float
+        avg_pace in decimal minutes per mile (running) or
+        per 100 yards (swimming).
+    sport : str
+        Sport of the session. Swimming pace is labeled "min/100yd";
+        all other sports are labeled "min/mi".
+
+    Returns
+    -------
+    string
+        Pace formatted as mm:ss, with a per-distance unit suffix.
+    """
+    if sport == "swimming":
+        return f"{decimal_minutes_to_mmss(value)} min/100yd"
+    else:
+        return f"{decimal_minutes_to_mmss(value)} min/mi"
+
+
+# Maps each summary key to a (value, sport) -> str formatter. Keys not
+# present here (e.g. "sport") are left unchanged by format_summary().
+FORMAT_RULES = {
+    "start_time": format_start_time,
+    "timer_time": format_timer_time,
+    "total_distance": format_distance,
+    "avg_pace": format_pace,
+    "avg_speed": lambda value, sport: f"{round(value, 2)} mph",
+    "avg_power": lambda value, sport: f"{value} W",
+    "avg_heart_rate": lambda value, sport: f"{value} bpm",
+    "total_calories": lambda value, sport: f"{value} cal",
+}
+
+
 def format_summary(summary):
     """
-    Replaces missing (None) values in a session summary with a
-    human-readable placeholder.
+    Creates a human-readable summary
 
     Parameters
     ----------
@@ -86,36 +188,26 @@ def format_summary(summary):
     -------
     dict
         A new dict with the same keys as `summary`. Any value that was
-        None is replaced with "Not Recorded"; timer_time, avg_pace,
-        avg_speed, and start_time are converted to more human-readable values;
-        decimals are rounded; The original `summary` dict is not modified.
+        None is replaced with "Not Recorded"; other fields are made more
+        human-readable and labeled with units; the original `summary` dict
+        is not modified.
+
+    Notes
+    -----
+    Formatting for each key is looked up in FORMAT_RULES. Keys without an
+    entry there (e.g. "sport") are copied through unchanged.
     """
 
     new_summary = {}
     for key, value in summary.items(): 
         if value is None:
             new_summary[key] = "Not Recorded"
-        elif key == "start_time":
-            new_summary[key] = pd.Timestamp(value).strftime("%Y-%m-%d %H:%M")
-        elif key == "total_distance" and summary["sport"] != "swimming":
-            new_summary[key] = f"{round(value, 2)} mi"
-        elif key == "total_distance" and summary["sport"] == "swimming":
-            new_summary[key] = f"{round(value)} yd"
-        elif key == "timer_time":
-            new_summary[key] = seconds_to_hhmmss(value)
-        elif key == "avg_pace" and summary["sport"] != "swimming":
-            new_summary[key] = f"{decimal_minutes_to_mmss(value)} min/mi"
-        elif key == "avg_pace" and summary["sport"] == "swimming":
-            new_summary[key] = f"{decimal_minutes_to_mmss(value)} min/100yd"
-        elif key == "avg_speed":
-            new_summary[key] = f"{round(value, 2)} mph"
-        elif key == "avg_heart_rate":
-            new_summary[key] = f"{value} bpm"
-        elif key == "avg_power" and value != None:
-            new_summary[key] = f"{value} W"
+        elif key in FORMAT_RULES:
+            formatter = FORMAT_RULES[key]
+            new_summary[key] = formatter(value, summary["sport"])
         else:
             new_summary[key] = value
-    
+
     return new_summary
 
 
@@ -251,6 +343,26 @@ def build_swimming_summary(session_df, lengths_df):
 
 
 def calc_active_swim_time(lengths_df):
+    """
+    Extracts active swim time from lengths information.
+
+    Parameters
+    ----------
+    lengths_df : pandas.DataFrame
+        Per-length data for the session.
+
+    Returns
+    -------
+    numpy.float64
+        Total active swimming time, in seconds.
+
+    Notes
+    -----
+    Sums up active swim time by filtering for `active` length_type, which
+    Garmin flags when the athlete is actively moving. This is specific to
+    swimming because Garmin's total_timer_time does not exclude rest between
+    reps the same way as it does for running and cycling.
+    """
     filtered_df = lengths_df[lengths_df["length_type"] == "active"]
     total = filtered_df["total_elapsed_time"].sum()
 
