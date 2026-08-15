@@ -7,7 +7,9 @@ Test suite for format_summary and its formatter functions in summary.py
 # -------------------------
 
 import pytest
-from metrics.summary import format_summary
+import pandas as pd
+from metrics.summary import format_summary, calc_active_swim_time
+from ingestion.load_fit import load_session_fit
 
 # -------------------------
 # Test cases
@@ -73,3 +75,18 @@ def test_format_summary_unmapped_key_passthrough():
     }
     new_test_summary = format_summary(test_summary)
     assert new_test_summary["sport"] == test_summary["sport"]
+
+
+def test_calc_active_swim_time_filters_idle():
+    fake_lengths = {
+        "length_type": ["active", "idle", "active", "active", "idle"],
+        "total_elapsed_time": [100, 600, 123, 555, 44]
+    }
+    fake_lengths_df = pd.DataFrame(fake_lengths)
+    assert calc_active_swim_time(fake_lengths_df) == 778
+
+
+def test_calc_active_swim_time_matches_garmin():
+    data = load_session_fit("data/raw/test/test_pool_swim.fit")
+    active_time = calc_active_swim_time(data["lengths"])
+    assert active_time == pytest.approx(3107.262)
